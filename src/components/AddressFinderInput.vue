@@ -1,7 +1,7 @@
 <template>
   <div>
     <label :for="id">{{ label }}</label>
-    <input type="text" :id="id" :style="'width:' + width + 'px'"></input>
+    <input type="text" :id="id" :style="'width:' + width + 'px'" />
   </div>
 </template>
 
@@ -21,25 +21,34 @@ export default {
   data() {
     return {
       ready: false,
+      widget: null
     };
   },
 
-  mounted() {
+  mounted () {
     bus.$on('afloaded', this.init);
     if (addressFinder.ready) {
       this.init();
     }
   },
 
+  destroyed () {
+    bus.$off('afloaded', this.init);
+    // Remove widget list element, or it will stick around while new ones are created
+    if (this.widget && this.widget.output) {
+      this.widget.output.remove()
+    }
+  },
+
   methods: {
-    init() {
+    init () {
       if (this.ready) {
         return;
       }
       this.ready = true;
 
       /* eslint-disable no-new */
-      new window.AddressFinder.Widget(
+      this.widget = new window.AddressFinder.Widget(
         document.getElementById(this.id),
         'ADDRESSFINDER_DEMO_KEY',
         'AU',
